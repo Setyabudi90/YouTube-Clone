@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     });
 
     if (format === "webp") {
-      image = image.toFormat("webp", { quality, nearLossless: true });
+      image = image.toFormat("webp", { quality, nearLossless: false });
     } else if (format === "jpeg" || format === "jpg") {
       image = image.toFormat("jpeg", {
         quality,
@@ -36,15 +36,15 @@ export async function GET(req: NextRequest) {
         mozjpeg: true,
       });
     } else if (format === "png") {
-      image = image.toFormat("png", { quality, palette: true });
+      image = image.toFormat("png", { quality, adaptiveFiltering: true, compressionLevel: 9 });
     }
 
-    image = image.blur(0.3);
     const optimizedImage = await image.toBuffer();
 
     return new NextResponse(optimizedImage, {
       headers: {
         "Content-Type": `image/${format}`,
+        "Content-Length": optimizedImage.length.toString(),
         "Cache-Control": "public, max-age=31536000, immutable",
       },
     });
